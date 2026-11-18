@@ -1,0 +1,16 @@
+# Local development database. Started automatically by Spring Boot
+# (spring-boot-docker-compose) when the application runs from this folder.
+services:
+  postgres:
+    image: 'postgres:18-alpine'
+    environment:
+      POSTGRES_DB: appointments
+      POSTGRES_USER: appointments
+      POSTGRES_PASSWORD: appointments # local development only
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+volumes:
+  postgres-data:
