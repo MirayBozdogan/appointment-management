@@ -1,5 +1,7 @@
 # appointment-management
 
+[![CI](https://github.com/MirayBozdogan/appointment-management/actions/workflows/ci.yml/badge.svg)](https://github.com/MirayBozdogan/appointment-management/actions/workflows/ci.yml)
+
 Appointment scheduling for small service businesses (barbers, clinics, studios), with a
 **waitlist that automatically fills cancelled slots**.
 
