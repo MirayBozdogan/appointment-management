@@ -52,6 +52,8 @@ Service names are unique within a business, ignoring case (unique index on
 `(business_id, lower(name))`).
 
 `working_hours` is stored in the business's **local time**, not UTC (see ADR 0004).
+Intervals of one staff member on the same day must not overlap (exclusion constraint
+`working_hours_no_overlap`). Shifts that cross midnight are not supported.
 
 ### Booking
 
