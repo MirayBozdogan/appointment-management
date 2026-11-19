@@ -48,6 +48,9 @@ Customers are global users with no membership row. They can book at any business
 | `working_hours` | `staff_id`, `day_of_week` (1–7), `start_local` `time`, `end_local` `time`         |
 | `time_off`      | `id`, `staff_id`, `period` `tstzrange`                                           |
 
+Service names are unique within a business, ignoring case (unique index on
+`(business_id, lower(name))`).
+
 `working_hours` is stored in the business's **local time**, not UTC (see ADR 0004).
 
 ### Booking
