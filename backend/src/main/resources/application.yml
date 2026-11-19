@@ -1,6 +1,16 @@
 spring:
   application:
     name: appointments
+  jpa:
+    # Keep database access inside service methods; no lazy loading during view rendering.
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema. Hibernate only checks that entities match it.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
 
 management:
   endpoints:
