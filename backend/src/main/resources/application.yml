@@ -1,6 +1,10 @@
 spring:
   application:
     name: appointments
+  mvc:
+    problemdetails:
+      # Standard errors (validation, malformed JSON, ...) use RFC 9457 Problem Details.
+      enabled: true
   jpa:
     # Keep database access inside service methods; no lazy loading during view rendering.
     open-in-view: false
