@@ -58,7 +58,11 @@ Intervals of one staff member on the same day must not overlap (exclusion constr
 ### Booking
 
 `appointment`: `id`, `business_id`, `staff_id`, `service_id`, `customer_id` (nullable),
-`period` `tstzrange`, `status`, `version`, `created_at`, `cancelled_at`
+`start_at`, `end_at`, `period` (generated from `start_at`/`end_at`, see ADR 0005), `status`,
+`version`, `created_at`, `cancelled_at`
+
+Appointments start on a 15-minute grid in the business's local time and must fit inside one
+working interval of the staff member.
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS btree_gist;
