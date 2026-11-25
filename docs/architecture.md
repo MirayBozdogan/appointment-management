@@ -35,8 +35,11 @@ flowchart LR
     staff --> catalog
     booking --> staff
     booking --> catalog
+    booking --> business
     availability --> staff
     availability --> booking
+    availability --> catalog
+    availability --> business
     waitlist --> booking
     booking -. AppointmentCancelled .-> waitlist
     booking -. events .-> notification
