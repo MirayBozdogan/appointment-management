@@ -5,7 +5,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -14,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.github.miraybozdogan.appointments.booking.AppointmentNotFoundException;
+import io.github.miraybozdogan.appointments.booking.AppointmentStatus;
 import io.github.miraybozdogan.appointments.booking.AppointmentView;
+import io.github.miraybozdogan.appointments.booking.BookingApi;
 import io.github.miraybozdogan.appointments.business.BusinessApi;
 import io.github.miraybozdogan.appointments.business.BusinessView;
 import io.github.miraybozdogan.appointments.catalog.CatalogApi;
@@ -25,10 +29,11 @@ import io.github.miraybozdogan.appointments.staff.WorkingInterval;
 
 @Service
 @Transactional(readOnly = true)
-class BookingService {
+class BookingService implements BookingApi {
 
-	/** Appointments start on a 15-minute grid in the business's local time. */
-	static final int SLOT_STEP_MINUTES = 15;
+	/** Statuses that occupy a slot; must match the WHERE clause of appointment_no_overlap. */
+	private static final Set<AppointmentStatus> ACTIVE_STATUSES =
+			EnumSet.of(AppointmentStatus.BOOKED, AppointmentStatus.HELD);
 
 	private static final String NO_OVERLAP_CONSTRAINT = "appointment_no_overlap";
 
@@ -91,6 +96,13 @@ class BookingService {
 			}
 			throw e;
 		}
+	}
+
+	@Override
+	public List<AppointmentView> activeAppointments(UUID businessId, UUID staffId, Instant from, Instant to) {
+		return appointments.findOverlapping(businessId, staffId, ACTIVE_STATUSES, from, to).stream()
+				.map(Appointment::toView)
+				.toList();
 	}
 
 	@Transactional
