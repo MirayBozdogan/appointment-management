@@ -31,11 +31,12 @@ Most booking apps are CRUD. This one focuses on the parts that are easy to get w
 
 | Area      | Choice                                                   |
 |-----------|----------------------------------------------------------|
-| Backend   | Java 21, Spring Boot 3, Spring Modulith, Spring Security |
-| Database  | PostgreSQL, Flyway                                       |
+| Backend   | Java 21, Spring Boot 4, Spring Modulith, Spring Security |
+| Database  | PostgreSQL 18, Flyway                                    |
 | Frontend  | Next.js, TypeScript                                      |
 | Testing   | JUnit 5, Spring Boot Test, Testcontainers                |
-| Later     | RabbitMQ (transactional outbox), Docker, GitHub Actions  |
+| CI        | GitHub Actions                                           |
+| Later     | RabbitMQ (transactional outbox), Docker images           |
 
 ## Documentation
 
@@ -46,9 +47,9 @@ Most booking apps are CRUD. This one focuses on the parts that are easy to get w
 ## Roadmap
 
 - [x] Requirements, data model and module boundaries
-- [ ] Spring Boot + PostgreSQL + Flyway foundation, CI
-- [ ] Businesses, services, staff and working hours
-- [ ] Availability and booking with database-level conflict prevention
+- [x] Spring Boot + PostgreSQL + Flyway foundation, CI
+- [x] Businesses, services, staff and working hours
+- [x] Availability and booking with database-level conflict prevention
 - [ ] Cancellation, waitlist and time-limited offers
 - [ ] Authentication, roles and per-business access control
 - [ ] Next.js customer booking flow and business dashboard
