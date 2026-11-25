@@ -2,11 +2,14 @@ package io.github.miraybozdogan.appointments.availability;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.zone.ZoneOffsetTransition;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -79,14 +82,35 @@ class AvailabilityApiTests {
 				s.businessId, s.staffId, s.serviceId)).hasStatus(HttpStatus.BAD_REQUEST);
 	}
 
+	/**
+	 * Berlin skips 02:00-03:00 local time on the last Sunday of March (ADR 0004). Slots before the
+	 * change have offset +01:00, slots after it +02:00, the lost hour offers nothing, and booking
+	 * accepts a slot listed after the change.
+	 */
+	@Test
+	void skipsTheLocalHourLostToDaylightSavingTime() {
+		LocalDate day = nextSpringForward(ZoneId.of("Europe/Berlin")).getDateTimeBefore().toLocalDate();
+		Setup s = setUp("Europe/Berlin", "01:00", "04:00", 30);
+
+		assertThat(availability(s, day)).hasStatusOk().bodyJson().extractingPath("$.slots").asArray()
+				.containsExactly(day + "T01:00:00+01:00", day + "T01:15:00+01:00", day + "T01:30:00+01:00",
+						day + "T01:45:00+01:00", day + "T03:00:00+02:00", day + "T03:15:00+02:00",
+						day + "T03:30:00+02:00");
+		book(s, OffsetDateTime.parse(day + "T03:00:00+02:00"));
+	}
+
 	record Setup(String businessId, String serviceId, String staffId) {
 	}
 
 	private Setup setUp(String start, String end, int durationMinutes) {
+		return setUp("Europe/Istanbul", start, end, durationMinutes);
+	}
+
+	private Setup setUp(String timezone, String start, String end, int durationMinutes) {
 		String slug = "availability-" + UUID.randomUUID().toString().substring(0, 8);
 		String businessId = id(post("/api/businesses", """
-				{"name": "Test", "slug": "%s", "timezone": "Europe/Istanbul"}
-				""".formatted(slug)));
+				{"name": "Test", "slug": "%s", "timezone": "%s"}
+				""".formatted(slug, timezone)));
 		String serviceId = id(post("/api/businesses/" + businessId + "/services", """
 				{"name": "Saç kesimi", "durationMinutes": %d, "priceCents": 50000}
 				""".formatted(durationMinutes)));
@@ -109,6 +133,15 @@ class AvailabilityApiTests {
 		assertThat(post("/api/businesses/" + s.businessId + "/appointments", """
 				{"staffId": "%s", "serviceId": "%s", "customerId": "%s", "startAt": "%s"}
 				""".formatted(s.staffId, s.serviceId, UUID.randomUUID(), startAt))).hasStatus(HttpStatus.CREATED);
+	}
+
+	/** The next change where clocks jump forward, at least a day away so its slots are in the future. */
+	private static ZoneOffsetTransition nextSpringForward(ZoneId zone) {
+		ZoneOffsetTransition transition = zone.getRules().nextTransition(Instant.now().plus(Duration.ofDays(1)));
+		while (!transition.isGap()) {
+			transition = zone.getRules().nextTransition(transition.getInstant());
+		}
+		return transition;
 	}
 
 	private static OffsetDateTime at(String localTime) {

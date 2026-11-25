@@ -71,6 +71,7 @@ class AvailabilityService {
 			for (LocalDateTime local = firstGridTime(date.atTime(interval.start())); local
 				.isBefore(intervalEnd); local = local.plusMinutes(BookingApi.SLOT_STEP_MINUTES)) {
 				// A local time skipped by a daylight saving change does not exist; offer nothing.
+				// A repeated local time (clocks going back) is offered once, at its earlier offset.
 				if (zone.getRules().getValidOffsets(local).isEmpty()) {
 					continue;
 				}
