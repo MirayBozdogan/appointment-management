@@ -12,7 +12,10 @@ time changes. Appointments, on the other hand, are exact moments in time.
 ## Decision
 
 - **Instants** (appointments, offers, audit events) are stored as `timestamptz` and handled as
-  `Instant` / `OffsetDateTime` in Java. The JDBC session and the JVM run in UTC.
+  `Instant` / `OffsetDateTime` in Java. Hibernate writes them in UTC whatever the JVM time zone is.
+- **Local values** (`LocalTime`, `LocalDate`) are written as they are, without time zone
+  conversion. The global `hibernate.jdbc.time_zone` setting is not used: it also shifted
+  working hours by the JVM's offset, so 09:00 was stored as 07:00 on a JVM in Istanbul.
 - **Working hours** are stored as local `time` values plus a `day_of_week`, without a zone.
 - **Each business** has an IANA time zone (for example `Europe/Istanbul`) in `business.timezone`.
 - **Availability** is computed by combining a date, a local working-hours window and the
